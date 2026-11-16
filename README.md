@@ -71,13 +71,35 @@ erDiagram
 - A participant can lead many activities, and an activity can have several leaders (`performed`).
 - A participant can belong to many departments, and a department has many participants (`responsibility`).
 
+## Views
+
+- `event_roster`: who took part in each event and in what role.
+- `activity_performers`: who led each activity and as what (lead or assistant).
+
 ## Design decisions
 
-- **Role per event.** The role a person had at a specific event is stored in `joined.role`, so history is preserved. `participants.current_role` stores the current status (it also allows `inactive`, which is set manually).
+- **Why MySQL.**
+  - **Several databases on one server.** Other needs and directions of Zgraya.project can get their own databases on the same server, with common access management and queries across databases. With SQLite each database would be a separate file.
+  - **Wider choice of data types.** `VARCHAR(n)`, `ENUM`, `YEAR` and others describe the data more precisely and reject invalid values; SQLite has fewer types and is much looser about them.
+  - **Access from different devices.** The server is available over the network, while an SQLite file would have to be copied between devices.
+  - **Practical value.** MySQL is widely used in web projects and job vacancies, so experience with it is useful.
+- **Role per event.** The role a person had at a specific event is stored in `joined.role`, so history is preserved. `participants.current_role` stores the current status.
+- **Current role is maintained manually.** `participants.current_role` is updated by hand and is not overwritten automatically. `inactive` is only ever set manually. A trigger on `joined` could keep the role in sync, but it was not added to keep the schema simple.
 - **Departments by year.** "Logistics 2025" and "Logistics 2026" are separate rows (`UNIQUE (title, year)`), so a department's type can change between years without losing history.
 - **Surrogate keys.** Junction tables have their own `id`; a composite `UNIQUE` constraint prevents duplicate pairs.
 - **Generated column.** `events.year` is calculated from `start_date`, so it cannot get out of sync.
 - **Several or no department heads** are allowed on purpose (`responsibility.position`).
+
+## Indexes
+
+I analysed several queries with `EXPLAIN`. Joins on keys use the indexes created automatically for primary keys, foreign keys and `UNIQUE` constraints.
+
+Two lookups perform a full table scan (`type: ALL`): a search by `participants.last_name` and a search by `departments.year` (the composite `UNIQUE (title, year)` index cannot be used when only `year` is filtered). I deliberately did not create extra indexes for them: this database is not meant to store a large amount of data, so a full scan is just as fast and the indexes would be optional. If the dataset grows, these indexes would be the first to add:
+
+```sql
+CREATE INDEX idx_participants_last_name ON participants (last_name);
+CREATE INDEX idx_departments_year ON departments (year);
+```
 
 ## Limitations
 
