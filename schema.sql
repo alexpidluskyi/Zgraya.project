@@ -1,3 +1,15 @@
+DROP VIEW IF EXISTS `activity_performers`;
+DROP VIEW IF EXISTS `event_roster`;
+
+DROP TABLE IF EXISTS `responsibility`;
+DROP TABLE IF EXISTS `performed`;
+DROP TABLE IF EXISTS `joined`;
+DROP TABLE IF EXISTS `activities`;
+DROP TABLE IF EXISTS `departments`;
+DROP TABLE IF EXISTS `events`;
+DROP TABLE IF EXISTS `participants`;
+
+
 CREATE TABLE `participants` (
     `id` INT AUTO_INCREMENT,
     `first_name` VARCHAR(32) NOT NULL,
@@ -74,4 +86,18 @@ CREATE TABLE `responsibility` (
     UNIQUE (`participant_id`, `department_id`),
     FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`),
     FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`)
+);
+
+CREATE VIEW event_roster AS (
+    SELECT first_name, last_name, role, events.name FROM participants
+      JOIN joined ON participants.id = joined.participant_id
+      JOIN events ON events.id = joined.event_id
+        ORDER BY events.name ASC
+);
+
+CREATE VIEW activity_performers AS (
+    SELECT first_name, last_name, moderator_role, activities.title FROM participants
+      JOIN performed ON participants.id = performed.participant_id
+      JOIN activities ON activities.id = performed.activity_id
+        ORDER BY activities.title ASC
 );
