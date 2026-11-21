@@ -118,3 +118,7 @@ sudo mysql zgraya < schema.sql
 sudo mysql zgraya < seed.sql
 sudo mysql -t zgraya < queries.sql
 ```
+
+   **Requirements:** MySQL 8.0.31 or newer.
+   
+      On macOS (Homebrew) use `mysql -u root` instead of `sudo mysql`.
