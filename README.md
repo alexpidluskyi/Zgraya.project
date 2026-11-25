@@ -1,6 +1,6 @@
 # Zgraya.project
 
-A relational database (MySQL) for **Zgraya**, a community that organizes informal camps for children. It stores participants, long-running events, activities held during events, and departments responsible for parts of each event. All data in `seed.sql` is fictional. Information about real participants is confidential and is not stored in this repository.
+A relational database (MySQL) for **[Zgraya](https://www.instagram.com/zgraya.project/)**, a community that organizes informal camps for children. It stores participants, long-running events, activities held during events, and departments responsible for parts of each event. All data in `seed.sql` is fictional. Information about real participants is confidential and is not stored in this repository.
 
 ## Database schema
 
